@@ -1,0 +1,10 @@
+{
+    "MODEL_DIR": "model",
+    "DICTS_DIR": "baseline_dataset",
+    "MQ_PORT": 3005,
+    "QUEUE_NAME": "requests",
+    "EXCHANGE_NAME": "diploma",
+    "EXCHANGE_TYPE": "direct",
+    "SECRET_KEY": "mundo-absorb-corporation",
+    "GMAIL_LOGIN": "rosyama.helper"
+}

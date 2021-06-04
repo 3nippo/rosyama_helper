@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Поиск повреждений</h1>
+
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        
+        <div class="input_field regular_text submit_button">
+            
+            {% for input_field in form.data.keys() %}
+                {% if input_field != 'csrf_token' %}
+                    <p>
+                        {% if input_field != 'submit' %}
+                            {{ form[input_field].label }}<br>
+                        {% endif %}
+
+                        {{ form[input_field] }}
+                        
+                        <br>
+                        {% for error in form[input_field].errors %}
+                            <span style="color: red;">*{{ error }}</span>
+                        {% endfor %}
+                    </p>
+                {% endif %}
+            {% endfor %}
+        
+        </div>
+    
+    </form>
+{% endblock %}
