@@ -1,6 +1,10 @@
 import os
 import subprocess
 from src.analyze_damage import damage_items_empty
+from geopy.geocoders import Nominatim
+
+
+geolocator = Nominatim(user_agent="app")
 
 
 eng_label2rus_label = {
@@ -59,10 +63,25 @@ def generate_md_report(
             rprint('***')
 
             rprint('### Участок дороги №{}'.format(i+1))
-            
+
             if damage_items_empty(damage_list[i]):
                 rprint('#### Повреждений не обнаружено')
                 continue
+
+            point, _ = track[i]
+            
+            rprint('#### Местоположение')
+
+            quote = True
+
+            rprint("Широта:", point[0])
+            rprint("Долгота:", point[1])
+            
+            address = geolocator.reverse(point).address
+
+            rprint("Адрес:", address)
+
+            quote = False
 
             for j, damage_item in enumerate(damage_list[i]):
                 rprint('#### Повреждение №{}'.format(j+1))
