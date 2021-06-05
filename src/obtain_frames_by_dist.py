@@ -6,6 +6,7 @@ from datetime import datetime
 from geopy import distance
 import os
 import cv2
+import enum
 
 """
 track
@@ -13,9 +14,7 @@ video
 dest_folder
 """
 
-# Returns 
-#   [((latitude, longitude), time), ...]
-def parse_gps_data(filepath):
+def parse_gpx(filepath):
     tree = ET.parse(filepath)
     root = tree.getroot()
     
@@ -25,7 +24,7 @@ def parse_gps_data(filepath):
     
     trkseg = trk.find(fmt.format('trkseg'))
     
-    points = []
+    track = []
 
     for trkpt in trkseg:
         point = (float(trkpt.attrib['lat']), float(trkpt.attrib['lon']))
@@ -34,9 +33,81 @@ def parse_gps_data(filepath):
 
         time = datetime.strptime(time.text, "%Y:%m:%d %H:%M:%S")
 
-        points.append([point, time])
+        track.append([point, time])
 
-    return points
+    return track
+
+
+class WrongGPSDataExtError(Exception):
+    def __str__(self):
+        return "Unsupported gps data format"
+
+
+class SrtStates(enum.Enum):
+    SKIP_INT = 0
+    READ_TIMESTAMP = 1
+    SKIP_DATE = 2
+    READ_LOCATION = 3
+    SKIP_EMPY_LINE = 4
+
+def parse_srt(filepath):
+    track = []
+
+    with open(filepath) as srt:
+        state = SrtStates.SKIP_INT
+        
+        trkpt = [None] * 2
+
+        for line in srt:
+            if state == SrtStates.SKIP_INT:
+                state = SrtStates.READ_TIMESTAMP
+                continue
+
+            if state == SrtStates.READ_TIMESTAMP:
+                time = line.split(' --> ')[0]
+                time = datetime.strptime(time, "%H:%M:%S,%f")
+                
+                trkpt[1] = time
+                
+                state = SrtStates.SKIP_DATE
+                continue
+
+            if state == SrtStates.SKIP_DATE:
+                state = SrtStates.READ_LOCATION
+                continue
+            
+            if state == SrtStates.READ_LOCATION:
+                latitude, longitude, _ = line.split(', ')
+
+                latitude, longitude = map(
+                    lambda s: float(s.replace(',', '.')),
+                    [latitude, longitude]
+                )
+
+                trkpt[0] = (latitude, longitude)
+
+                track.append(trkpt)
+                trkpt = [None] * 2
+
+                state = SrtStates.SKIP_EMPY_LINE
+                continue
+
+            if state == SrtStates.SKIP_EMPY_LINE:
+                state = SrtStates.SKIP_INT
+                continue
+
+    return track
+
+# Returns 
+#   [((latitude, longitude), time), ...]
+def parse_gps_data(filepath):
+    if filepath.endswith('.gpx'):
+        return parse_gpx(filepath)
+    elif filepath.endswith('.srt'):
+        return parse_srt(filepath)
+    else:
+        raise WrongGPSDataExtError
+
 
 def cut_track_every_n_meters(track, n):
     if len(track) < 2:
@@ -129,7 +200,7 @@ def extract_frames_by_timestamps(video_path, dest_folder, track):
 
 
 # Returns cut track
-def obtain_frames_by_dist(gps_path, video_path, dest_folder, dist=7):
+def obtain_frames_by_dist(gps_path, video_path, dest_folder, dist=3):
     track = parse_gps_data(gps_path)
 
     cut_track = cut_track_every_n_meters(track, dist)

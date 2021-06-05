@@ -7,6 +7,7 @@ import functools
 from src.obtain_masks import load_model
 from src.analyze_damage import load_pydict
 from src.process_request import process_request, load_name_label_dicts, BadError, CantDownloadError
+from src.obtain_frames_by_dist import WrongGPSDataExtError
 
 """
 request.json
@@ -32,7 +33,7 @@ def process_message(channel, frame, properties, body, model, name2label, label2n
             gmail_login,
             request_data
         )
-    except (CantDownloadError, BadError) as exception:
+    except (CantDownloadError, BadError, WrongGPSDataExtError) as exception:
         print(str(exception))
 
     channel.basic_ack(delivery_tag=frame.delivery_tag)

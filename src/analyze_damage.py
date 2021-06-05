@@ -396,6 +396,9 @@ def find_damage_items(
                 label2name[mask[h][w]]
             )
 
+            if damage_item.area == 0:
+                continue
+
             damage_items.append(damage_item)
 
     return damage_items, used_points

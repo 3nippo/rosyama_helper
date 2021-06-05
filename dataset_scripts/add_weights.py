@@ -30,6 +30,7 @@ def create_weights(
         label_freq[label] = count / (dim1 * dim2)
     
     median_freq = np.median(list(label_freq.values()))
+    print(median_freq, np.mean(list(label_freq.values())))
     
     label_weights = { 
         label: median_freq / freq
