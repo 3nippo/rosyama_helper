@@ -1,30 +1,38 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Поиск повреждений</h1>
+    <div class="title">
+        <h1>Поиск повреждений</h1>
+    </div>
 
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         
-        <div class="input_field regular_text submit_button">
+        <div id='request_form'>
             
             {% for input_field in form.data.keys() %}
-                {% if input_field != 'csrf_token' %}
-                    <p>
-                        {% if input_field != 'submit' %}
-                            {{ form[input_field].label }}<br>
-                        {% endif %}
+                {% if input_field not in ['csrf_token', 'submit'] %}
+                    <div class='input_pair'>
+                        <p>
+                            <div class='input_label'>
+                                {{ form[input_field].label }}
+                            </div><br>
 
-                        {{ form[input_field] }}
-                        
-                        <br>
-                        {% for error in form[input_field].errors %}
-                            <span style="color: red;">*{{ error }}</span>
-                        {% endfor %}
-                    </p>
+                            {{ form[input_field] }}
+                            
+                            <br>
+                            {% for error in form[input_field].errors %}
+                                <span style="color: red;">*{{ error }}</span>
+                            {% endfor %}
+                        </p>
+                    </div>
                 {% endif %}
             {% endfor %}
-        
+            
+            <p>
+                {{ form.submit() }} <br>
+            </p>
+
         </div>
     
     </form>

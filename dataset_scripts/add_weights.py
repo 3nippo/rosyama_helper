@@ -13,7 +13,7 @@ def create_weights(
     
     weights = []
     
-    total_counter = collections.Counter()
+    label_freq = {}
 
     for mask_path in masks_paths:
         mask = cv2.imread(mask_path, cv2.IMREAD_UNCHANGED)
@@ -22,12 +22,8 @@ def create_weights(
         
         label_counter = collections.Counter(mask.flatten())
 
-        total_counter = total_counter + label_counter
-
-    label_freq = {}
-    
-    for label, count in total_counter.items():
-        label_freq[label] = count / (dim1 * dim2)
+        for label, count in label_counter.items():
+            label_freq[label] = label_freq.get(label, 0) +count / (dim1 * dim2)
     
     median_freq = np.median(list(label_freq.values()))
     print(median_freq, np.mean(list(label_freq.values())))

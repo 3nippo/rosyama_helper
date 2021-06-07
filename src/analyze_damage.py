@@ -534,10 +534,10 @@ if __name__ == "__main__":
     name2label = { color2name[color]: label for color, label in color2label.items() }
     label2name = { label: name for name, label in name2label.items() }
 
-    relpath_to_mask = sys.argv[5]
+    path_to_mask = sys.argv[5]
 
     damage_items = analyze_mask(
-        os.path.join(baseline_dataset_dir, relpath_to_mask),
+        path_to_mask,
         name2label,
         label2name,
         focal_length,
